@@ -17,6 +17,7 @@ public class Github extends Thread{
     private static final String url = "https://api.github.com/repos/%s/%s/releases/latest";
 
     private final String userName;
+    private final String githubToken;
     private final String packageName;
     private final String type;
     private final String fileName;
@@ -27,22 +28,29 @@ public class Github extends Thread{
     public int fetched = 0;
 
     public Github(
-            String userName, String packageName, String type, String fileName, String versionName
+            String userName,String githubToken, String packageName, String type, String fileName, String versionName
     ){
         this.userName = userName;
+        this.githubToken = githubToken;
         this.packageName = packageName;
         this.type = type;
         this.fileName = fileName;
         this.versionCode = versionName;
-        Log.d(TAG,"Github: "+userName+" "+packageName+" "+type+" "+fileName+" "+versionName);
+        Log.d(TAG,"Github: "+userName+" "+githubToken+" "+packageName+" "+type+" "+fileName+" "+versionName);
     }
 
     @Override
     public void run(){
         try {
             URL requestUrl = new URL(String.format(url, userName, packageName));
+            Log.d(TAG,"resquestUrl "+requestUrl.toString());
             HttpsURLConnection connection = (HttpsURLConnection) requestUrl.openConnection();
             connection.setRequestProperty("User-Agent", "auto-update");
+            
+            if (githubToken != null && !githubToken.isEmpty()) {
+                connection.setRequestProperty("Authorization", "Bearer "+githubToken);
+            }
+
             if (connection.getResponseCode() == 200) {
                 try {
                     InputStreamReader inputStream = new InputStreamReader(
@@ -80,6 +88,8 @@ public class Github extends Thread{
                     connection.disconnect();
                 }
             }
+            Log.d(TAG,"response code "+connection.getResponseCode());
+            Log.d(TAG,"response message "+connection.getResponseMessage());
         } catch (IOException | JSONException e) {
             Log.e(TAG,e.getMessage());
             exception = e;

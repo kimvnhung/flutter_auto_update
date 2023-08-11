@@ -48,6 +48,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
       case "fetchGithub":
         fetchGithub(
                 Objects.requireNonNull(call.argument("user")),
+                call.argument("githubToken"),
                 Objects.requireNonNull(call.argument("packageName")),
                 "application/vnd.android.package-archive"
                 , result
@@ -94,7 +95,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
     return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
   }
 
-  private void fetchGithub(@NonNull String user, @NonNull String packageName,
+  private void fetchGithub(@NonNull String user,String githubToken,  @NonNull String packageName,
                                        @NonNull String type, @NonNull Result result){
     String appPackageName = FlutterAutoUpdatePlugin.getApplicationName(context.getApplicationContext())
             .replaceAll(" ", "") + ".apk";
@@ -109,7 +110,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
       return;
     }
 
-    Github github = new Github(user, packageName, type, appPackageName, versionName);
+    Github github = new Github(user,githubToken, packageName, type, appPackageName, versionName);
     github.start();
 
     try {

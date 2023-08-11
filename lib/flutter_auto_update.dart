@@ -17,11 +17,14 @@ class FlutterAutoUpdate {
 
   static Future<Map<dynamic, dynamic>> fetchGithub(
       String user, String packageName,
-      {String fileType = ".exe"}) async {
+      {String fileType = ".exe", String githubToken = ""}) async {
     Map<dynamic, dynamic> res = {};
     if (Platform.isAndroid) {
-      return await _channel.invokeMethod(
-          "fetchGithub", {"user": user, "packageName": packageName});
+      return await _channel.invokeMethod("fetchGithub", {
+        "user": user,
+        "githubToken": githubToken,
+        "packageName": packageName
+      });
     } else if (Platform.isWindows) {
       List<dynamic>? packageInfo =
           await _channel.invokeListMethod("getProductAndVersion");

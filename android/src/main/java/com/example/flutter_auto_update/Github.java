@@ -64,7 +64,8 @@ public class Github extends Thread{
 
                     String jsonData = sb.toString();
                     JSONObject jsonObject = new JSONObject(jsonData);
-                    if (jsonObject.get("tag_name") != versionCode) {
+                    Log.d(TAG,"tag_name "+jsonObject.get("tag_name")+" "+versionCode);
+                    if (!jsonObject.get("tag_name").equals(versionCode)) {
                         JSONArray assets = (JSONArray) jsonObject.get("assets");
                         for (int i = 0; i < assets.length(); i++) {
                             JSONObject asset = assets.getJSONObject(i);

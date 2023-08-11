@@ -30,7 +30,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      updateUrl = await FlutterAutoUpdate.fetchGithub("damviet", "tdlib_min");
+      updateUrl = await FlutterAutoUpdate.fetchGithub(
+          "kimvnhung", "flutter_auto_update");
     } on PlatformException {
       updateUrl = {'assetUrl': 'Failed to get the url of the new release.'};
     }

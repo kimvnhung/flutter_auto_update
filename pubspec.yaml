@@ -1,7 +1,7 @@
 name: flutter_auto_update
 description: A new Flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/kimvnhung/flutter_auto_update.git
 
 environment:
   sdk: '>=3.0.6 <4.0.0'

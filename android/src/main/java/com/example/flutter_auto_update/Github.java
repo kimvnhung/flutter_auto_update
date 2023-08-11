@@ -1,5 +1,7 @@
 package com.example.flutter_auto_update;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +13,7 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 public class Github extends Thread{
+    private static final String TAG = Github.class.getName();
     private static final String url = "https://api.github.com/repos/%s/%s/releases/latest";
 
     private final String userName;
@@ -31,6 +34,7 @@ public class Github extends Thread{
         this.type = type;
         this.fileName = fileName;
         this.versionCode = versionName;
+        Log.d(TAG,"Github: "+userName+" "+packageName+" "+type+" "+fileName+" "+versionName);
     }
 
     @Override
@@ -77,7 +81,7 @@ public class Github extends Thread{
                 }
             }
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG,e.getMessage());
             exception = e;
             fetched = -1;
         }

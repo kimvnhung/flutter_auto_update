@@ -9,15 +9,14 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _flutterAutoUpdatePlugin = FlutterAutoUpdate();
+  Map<dynamic, dynamic> _packageUpdateUrl = {};
 
   @override
   void initState() {
@@ -27,14 +26,13 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    Map<dynamic, dynamic> updateUrl;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _flutterAutoUpdatePlugin.getPlatformVersion() ?? 'Unknown platform version';
+      updateUrl = await FlutterAutoUpdate.fetchGithub("damviet", "tdlib_min");
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      updateUrl = {'assetUrl': 'Failed to get the url of the new release.'};
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -43,7 +41,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _packageUpdateUrl = updateUrl;
     });
   }
 
@@ -52,10 +50,31 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Auto Update Example'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            children: [
+              Text('Update url: ${_packageUpdateUrl['assetUrl']}\n'),
+              IconButton(
+                  onPressed: () async {
+                    if (_packageUpdateUrl['assetUrl'].isNotEmpty &&
+                        _packageUpdateUrl['assetUrl'] != "up-to-date" &&
+                        (_packageUpdateUrl['assetUrl'] as String)
+                            .contains("https://")) {
+                      try {
+                        await FlutterAutoUpdate.downloadAndUpdate(
+                            _packageUpdateUrl['assetUrl']);
+                      } on PlatformException {
+                        setState(() {
+                          _packageUpdateUrl['assetUrl'] = "Unable to download";
+                        });
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.download_for_offline_outlined))
+            ],
+          ),
         ),
       ),
     );

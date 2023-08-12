@@ -74,7 +74,8 @@ public class Github extends Thread{
                                     asset.get("name").toString().equals(fileName)
                             ) {
                                 githubResults = new GithubResults(
-                                    asset.get("browser_download_url").toString(),
+                                    // asset.get("browser_download_url").toString(),
+                                    asset.get("url").toString(),
                                     jsonObject.get("body").toString(),
                                     jsonObject.get("tag_name").toString()
                                 );

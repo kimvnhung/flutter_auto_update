@@ -31,6 +31,7 @@ import io.flutter.plugin.common.MethodChannel.Result;
 /** FlutterAutoUpdatePlugin */
 /** AutoUpdatePlugin */
 public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
+  private static final String TAG = FlutterAutoUpdatePlugin.class.getName();
   private MethodChannel channel;
   private Context context;
   private Activity activity;
@@ -55,7 +56,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
         );
         break;
       case "downloadAndUpdate":
-        downloadAndUpdate(Uri.parse(Objects.requireNonNull(call.argument("url"))), result);
+        downloadAndUpdate(Uri.parse(Objects.requireNonNull(call.argument("url"))),call.argument("githubToken"), result);
         break;
       case "closeActivity":
         activity.finish();
@@ -140,7 +141,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
 
   }
 
-  private void downloadAndUpdate(@NonNull Uri url, @NonNull Result result){
+  private void downloadAndUpdate(@NonNull Uri url,String githubToken, @NonNull Result result){
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       if (!Environment.isExternalStorageManager()){
@@ -178,12 +179,13 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
     if (file.exists())
         file.delete();
 
-    FileDownloader fileDownloader = new FileDownloader(url.toString(), file);
+    FileDownloader fileDownloader = new FileDownloader(url.toString(),githubToken, file);
     fileDownloader.start();
+    Log.d(TAG,"start download update");
     try {
       fileDownloader.join();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      Log.e(TAG,e.getMessage());
       result.error(String.valueOf(e.hashCode()), e.getMessage(), e);
       return;
     }
@@ -197,6 +199,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
         return;
     }
 
+    Log.d(TAG,"download done");
     Intent install = new Intent(Intent.ACTION_VIEW);
     install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     install.addCategory(Intent.CATEGORY_DEFAULT);
@@ -219,6 +222,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
     }
 
     try {
+      Log.d(TAG,"start install");
       activity.startActivity(install);
     } catch (ActivityNotFoundException e) {
       Log.d("-1", "No APP found to open this file。");

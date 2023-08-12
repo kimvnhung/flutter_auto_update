@@ -42,9 +42,15 @@ class FlutterAutoUpdate {
     return res;
   }
 
-  static Future<void> downloadAndUpdate(String url) async {
+  static Future<void> downloadAndUpdate(
+    String url, {
+    String githubToken = "",
+  }) async {
     if (Platform.isAndroid) {
-      await _channel.invokeMethod("downloadAndUpdate", {"url": url});
+      await _channel.invokeMethod("downloadAndUpdate", {
+        "url": url,
+        "githubToken": githubToken,
+      });
     } else if (Platform.isWindows) {
       String? filePath = await downloadFile(
           Uri.parse(url),

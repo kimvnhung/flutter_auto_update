@@ -5,3 +5,7 @@ Upgrade project https://github.com/ehoraizon/auto_update to newest version flutt
  - Release name of the apk file need to be the same name with the packageName : 
     forexample: if android package name is  : com.example.flutter_auto_update_example , the release apk name must be : flutter_auto_update_example.apk
  - the package name input to fetchGithub must be the repo name.
+
+# Fix bug from origin repo
+ - Add option to add github token
+ - Fix error on compare versionCode

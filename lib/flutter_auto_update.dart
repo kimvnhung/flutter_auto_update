@@ -45,11 +45,13 @@ class FlutterAutoUpdate {
   static Future<void> downloadAndUpdate(
     String url, {
     String githubToken = "",
+    bool isFromService = false,
   }) async {
     if (Platform.isAndroid) {
       await _channel.invokeMethod("downloadAndUpdate", {
         "url": url,
         "githubToken": githubToken,
+        "isFromService": isFromService,
       });
     } else if (Platform.isWindows) {
       String? filePath = await downloadFile(

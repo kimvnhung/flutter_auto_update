@@ -56,7 +56,12 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
         );
         break;
       case "downloadAndUpdate":
-        downloadAndUpdate(Uri.parse(Objects.requireNonNull(call.argument("url"))),call.argument("githubToken"), result);
+        boolean isFromService = call.argument("isFromService");
+        if(isFromService){
+          downloadAndUpdateFromService(Uri.parse(Objects.requireNonNull(call.argument("url"))),call.argument("githubToken"), result);
+        }else {
+          downloadAndUpdate(Uri.parse(Objects.requireNonNull(call.argument("url"))),call.argument("githubToken"), result);
+        }
         break;
       case "closeActivity":
         activity.finish();
@@ -200,6 +205,7 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
     }
 
     Log.d(TAG,"download done");
+  
     Intent install = new Intent(Intent.ACTION_VIEW);
     install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     install.addCategory(Intent.CATEGORY_DEFAULT);
@@ -232,5 +238,67 @@ public class FlutterAutoUpdatePlugin implements FlutterPlugin, MethodCallHandler
 
     activity.startActivity(install);
     activity.finish();
+    result.success(true);
+  }
+
+  private void downloadAndUpdateFromService(@NonNull Uri url,String githubToken, @NonNull Result result){
+
+    String destination =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" +
+                    FlutterAutoUpdatePlugin.getApplicationName(context.getApplicationContext())
+                            .replaceAll(" ", "") + ".apk";
+    final Uri uri = Uri.parse("file://" + destination);
+
+    //Delete update file if exists
+    File file = new File(destination);
+
+    if (file.exists())
+        file.delete();
+
+    FileDownloader fileDownloader = new FileDownloader(url.toString(),githubToken, file);
+    fileDownloader.start();
+    Log.d(TAG,"start download update");
+    try {
+      fileDownloader.join();
+    } catch (InterruptedException e) {
+      Log.e(TAG,e.getMessage());
+      result.error(String.valueOf(e.hashCode()), e.getMessage(), e);
+      return;
+    }
+
+    switch (fileDownloader.downloaded) {
+      case 0:
+        result.success(-1);
+        return;
+      case -1:
+        result.error("1", fileDownloader.exception.getMessage(), fileDownloader.exception);
+        return;
+    }
+
+    Log.d(TAG,"download done");
+    Intent install = new Intent(Intent.ACTION_VIEW);
+    install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    install.addCategory(Intent.CATEGORY_DEFAULT);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      Uri data = FileProvider.getUriForFile(
+              context, context.getApplicationContext().getPackageName() + ".provider", file);
+      install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      install.setDataAndType(data, "application/vnd.android.package-archive");
+    } else {
+      install.setDataAndType(uri, "application/vnd.android.package-archive");
+    }
+
+    try {
+      Log.d(TAG,"start install");
+      context.startActivity(install);
+    } catch (ActivityNotFoundException e) {
+      Log.d("-1", "No APP found to open this file。");
+    } catch (Exception e) {
+      Log.d("-4", "File opened incorrectly。");
+    }
+
+    context.startActivity(install);
+    result.success(true);
   }
 }

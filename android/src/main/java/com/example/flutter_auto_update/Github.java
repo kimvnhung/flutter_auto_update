@@ -66,13 +66,13 @@ public class Github extends Thread {
                     JSONObject jsonObject = new JSONObject(jsonData);
                     Log.d(TAG, "tag_name " + jsonObject.get("tag_name") + " " + versionCode);
                     if (!jsonObject.get("tag_name").equals(versionCode)) {
-                        String[] versionCodes = versionCode.split(".");
-                        String[] tagNames = jsonObject.getString("tag_name").split(".");
+                        String[] versionCodes = versionCode.split("\\.");
+                        String[] tagNames = jsonObject.getString("tag_name").split("\\.");
                         boolean isUpdatable = false;
                         for (int i = 0; i < tagNames.length; i++) {
                             int targetVer = Integer.parseInt(tagNames[i]);
                             int curVer = Integer.parseInt(versionCodes[i]);
-                            if (targetVer != curVer) {
+                                                        if (targetVer != curVer) {
                                 if (targetVer > curVer) {
                                     isUpdatable = true;
                                 }

@@ -23,4 +23,5 @@ Future<String?> downloadFile(
     await response.pipe(file.openWrite());
     return file.absolute.path;
   }
+  return null;
 }

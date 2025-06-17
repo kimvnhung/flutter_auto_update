@@ -72,7 +72,7 @@ public class Github extends Thread {
                         for (int i = 0; i < tagNames.length; i++) {
                             int targetVer = Integer.parseInt(tagNames[i]);
                             int curVer = Integer.parseInt(versionCodes[i]);
-                                                        if (targetVer != curVer) {
+                            if (targetVer != curVer) {
                                 if (targetVer > curVer) {
                                     isUpdatable = true;
                                 }

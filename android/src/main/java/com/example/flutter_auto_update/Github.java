@@ -89,7 +89,10 @@ public class Github extends Thread {
                                             // asset.get("browser_download_url").toString(),
                                             asset.get("url").toString(),
                                             jsonObject.get("body").toString(),
-                                            jsonObject.get("tag_name").toString());
+                                            jsonObject.get("tag_name").toString(),
+                                            jsonObject.get("created_at").toString(),
+                                            jsonObject.get("updated_at").toString()
+                                            );
                                     fetched = 1;
                                     break;
                                 }
